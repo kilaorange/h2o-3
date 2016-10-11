@@ -122,27 +122,40 @@ public class AstCorrelation extends AstPrimitive {
         xmeans[x] = vecxs[x].mean();
 
       // Launch tasks; each does all Xs vs one Y
-      for (int y = 0; y < ncoly; y++)
+      for (int y = 0; y < ncoly; y++) {
         cvs[y] = new CorTaskEverything(vecys[y].mean(), xmeans).dfork(new Frame(vecys[y]).add(frx));
+      }
 
       // 1-col returns scalar
       if (ncolx == 1 && ncoly == 1) {
         return new ValNum(cvs[0].getResult()._cor[0] / (fry.numRows() - 1));
       }
 
-      // Gather all the Xs-vs-Y correlation arrays; divide by rows
-      Vec[] res = new Vec[ncoly];
-      Vec[] resx = new Vec[ncoly];
-      Vec[] resy = new Vec[ncoly];
-      Key<Vec>[] keys = Vec.VectorGroup.VG_LEN1.addVecs(ncoly);
-      Key<Vec>[] keysx = Vec.VectorGroup.VG_LEN1.addVecs(ncoly);
-      Key<Vec>[] keysy = Vec.VectorGroup.VG_LEN1.addVecs(ncoly);
+      //Calculate covariance of x & y, variance of x, variance of  y, standard deviation of x,
+      //and standard deviation of y
+      double[] cov = new double[ncoly];
+      double[] varx = new double[ncoly];
+      double[] vary = new double[ncoly];
+      double[] denom;
       for (int y = 0; y < ncoly; y++) {
-        res[y] = Vec.makeVec(ArrayUtils.div(cvs[y].getResult()._cor, (fry.numRows() - 1)), keys[y]);
-        resx[y] = Vec.makeVec(ArrayUtils.div(cvs[y].getResult()._denomx, (fry.numRows() - 1)), keysx[y]);
-        resy[y] = Vec.makeVec(ArrayUtils.div(cvs[y].getResult()._denomy, (fry.numRows() - 1)), keysy[y]);
+        cov[y] = ArrayUtils.div(cvs[y].getResult()._cor[y], (fry.numRows() - 1));
+        vary[y] = ArrayUtils.div(cvs[y].getResult()._denomy[y],(fry.numRows()-1));
+        varx[y] = ArrayUtils.div(cvs[y].getResult()._denomx[y],(frx.numRows()-1));
       }
 
+      double[] sdx = square(varx);
+      double[] sdy = square(vary);
+
+      //Denominator for correlations calculation is sigma_x * sigma_y
+      denom = ArrayUtils.mult(sdx,sdy);
+
+      //Gather final result, which is the correlation coefficient per column
+      double[] result = ArrayUtils.div(cov,denom);
+      Vec[] res = new Vec[ncoly];
+      Key<Vec>[] keys = Vec.VectorGroup.VG_LEN1.addVecs(ncoly);
+      for (int y = 0; y < ncoly; y++) {
+        res[y] = Vec.makeVec(result,keys[y]);
+      }
       return new ValFrame(new Frame(fry._names, res));
     } else { //if (mode.equals(Mode.CompleteObs))
 
@@ -161,15 +174,9 @@ public class AstCorrelation extends AstPrimitive {
 
       // Gather all the Xs-vs-Y correlation arrays; divide by rows
       Vec[] res = new Vec[ncoly];
-      Vec[] resx = new Vec[ncoly];
-      Vec[] resy = new Vec[ncoly];
       Key<Vec>[] keys = Vec.VectorGroup.VG_LEN1.addVecs(ncoly);
-      Key<Vec>[] keysx = Vec.VectorGroup.VG_LEN1.addVecs(ncoly);
-      Key<Vec>[] keysy = Vec.VectorGroup.VG_LEN1.addVecs(ncoly);
       for (int y = 0; y < ncoly; y++) {
         res[y] = Vec.makeVec(ArrayUtils.div(cvs.getResult()._cor[y], (fry.numRows() - 1)), keys[y]);
-        resx[y] = Vec.makeVec(ArrayUtils.div(cvs.getResult()._denomx[y], (fry.numRows() - 1)), keysx[y]);
-        resy[y] = Vec.makeVec(ArrayUtils.div(cvs.getResult()._denomy[y], (fry.numRows() - 1)), keysy[y]);
       }
       return new ValFrame(new Frame(fry._names, res));
     }
@@ -368,4 +375,13 @@ public class AstCorrelation extends AstPrimitive {
       ArrayUtils.add(_denomy, cvt._denomy);
     }
   }
+
+  public static double[] square (double [] array) {
+    double[] result = new double[array.length];
+    for(int i = 0; i < array.length ; i++ )
+      result[i] = Math.sqrt(array[i]);
+
+    return result;
+  }
+
 }
