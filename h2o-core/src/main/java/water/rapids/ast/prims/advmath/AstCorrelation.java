@@ -138,16 +138,15 @@ public class AstCorrelation extends AstPrimitive {
       double[] vary = new double[ncoly];
       double[] denom;
       for (int y = 0; y < ncoly; y++) {
-        cov[y] = ArrayUtils.div(cvs[y].getResult()._cor[y], (fry.numRows() - 1));
-        vary[y] = ArrayUtils.div(cvs[y].getResult()._denomy[y],(fry.numRows()-1));
-        varx[y] = ArrayUtils.div(cvs[y].getResult()._denomx[y],(frx.numRows()-1));
+        cov = ArrayUtils.div(cvs[y].getResult()._cor, (fry.numRows() - 1));
+        vary = ArrayUtils.div(cvs[y].getResult()._denomy,(fry.numRows()-1));
+        varx = ArrayUtils.div(cvs[y].getResult()._denomx,(frx.numRows()-1));
       }
-
-      double[] sdx = square(varx);
-      double[] sdy = square(vary);
+      double[] sdx = square_root(varx);
+      double[] sdy = square_root(vary);
 
       //Denominator for correlations calculation is sigma_x * sigma_y
-      denom = ArrayUtils.mult(sdx,sdy);
+      denom = ArrayUtils.mult(sdy,sdx);
 
       //Gather final result, which is the correlation coefficient per column
       double[] result = ArrayUtils.div(cov,denom);
@@ -376,7 +375,7 @@ public class AstCorrelation extends AstPrimitive {
     }
   }
 
-  public static double[] square (double [] array) {
+  public static double[] square_root (double [] array) {
     double[] result = new double[array.length];
     for(int i = 0; i < array.length ; i++ )
       result[i] = Math.sqrt(array[i]);
