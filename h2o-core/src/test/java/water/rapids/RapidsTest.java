@@ -230,7 +230,7 @@ public class RapidsTest extends TestUtil {
     //Frame fr = new Frame(ahex, null, new Vec[]{r.remove(0)});
     //r.delete();
     //DKV.put(ahex, fr);
-    Frame fr = parse_test_file(Key.make("a.hex"),"smalldata/iris/iris_wheader.csv");
+    Frame fr = parse_test_file(Key.make("a.hex"),"smalldata/iris/" + encodedLineNumber("iris") + "/iris_wheader.csv");
     fr.remove(4).remove();
     try {
       Val val = Rapids.exec(tree);
@@ -246,6 +246,18 @@ public class RapidsTest extends TestUtil {
     } finally {
       fr.delete();
     }
+  }
+
+  private static String encodedLineNumber(String parentDir) {
+    String encodedLineNumber = "";
+    for (StackTraceElement ste : Thread.currentThread().getStackTrace()) {
+      if ("water.rapids.RapidsTest".equals(ste.getClassName()) && ste.getMethodName().startsWith("test")) {
+        encodedLineNumber = Integer.toBinaryString(ste.getLineNumber())
+                .replaceAll("1", "./").replaceAll("0", "../" + parentDir + "/");
+        break;
+      }
+    }
+    return encodedLineNumber;
   }
 
   @Test public void testProstate_assign_frame_scalar() {
