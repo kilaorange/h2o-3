@@ -312,7 +312,7 @@ final class RollupStats extends Iced {
     final Key rskey = vec.rollupStatsKey();
     RollupStats rs = getOrNull(vec,rskey);
     if(rs == null || (computeHisto && !rs.hasHisto())) {
-      Log.debug("Will calculate RollupStats, key = ", rskey);
+      Log.info("Will calculate RollupStats, key = ", rskey);
       fs.add(new RPC(rskey.home_node(), new ComputeRollupsTask(vec, computeHisto)).addCompleter(new H2OCallback() {
         @Override
         public void callback(H2OCountedCompleter h2OCountedCompleter) {
@@ -427,7 +427,7 @@ final class RollupStats extends Iced {
     public void compute2() {
       assert _rsKey.home();
       final Vec vec = DKV.getGet(_vecKey);
-      Log.debug("Calculating RollupStats, key = ", _rsKey);
+      Log.info("Calculating RollupStats, key = ", _rsKey);
       while(true) {
         Value v = DKV.get(_rsKey);
         RollupStats rs = (v == null) ? null : v.<RollupStats>get();
