@@ -736,6 +736,14 @@ public class Vec extends Keyed<Vec> {
    *  contents. */
   public void preWriting( ) {
     if( !writable() ) throw new IllegalArgumentException("Vector not writable");
+    setMutating();
+  }
+
+  /**
+   * Marks the Vec as mutating. Vec needs to be marked as mutating whenever
+   * it is modified ({@link #preWriting()}) or removed ({@link #remove_impl(Futures)}).
+   */
+  private void setMutating() {
     final Key rskey = rollupStatsKey();
     Value val = DKV.get(rskey);
     if( val != null ) {
@@ -1108,6 +1116,9 @@ public class Vec extends Keyed<Vec> {
    *  associated Chunks.
    *  @return Passed in Futures for flow-coding  */
   @Override public Futures remove_impl( Futures fs ) {
+    // Need to mark the Vec as mutating to make sure that no running computations of RollupStats will
+    // re-insert the rollups into DKV after they are deleted in bulk_remove(..).
+    setMutating();
     // Bulk dumb local remove - no JMM, no ordering, no safety.
     final int ncs = nChunks();
     new MRTask() {

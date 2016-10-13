@@ -11,6 +11,7 @@ import water.parser.ParseDataset;
 import water.parser.ParseSetup;
 import water.rapids.vals.ValFrame;
 import water.util.ArrayUtils;
+import water.util.Log;
 
 import java.io.File;
 import java.util.Arrays;
@@ -241,7 +242,7 @@ public class RapidsTest extends TestUtil {
         fr2.remove();
       }
     } catch( IllegalArgumentException iae ) {
-      if( !expectThrow ) throw iae;
+      if (expectThrow) Log.debug("Expected Exception suppressed", iae); else throw iae;
     } finally {
       fr.delete();
     }

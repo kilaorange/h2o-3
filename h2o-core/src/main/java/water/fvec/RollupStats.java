@@ -11,6 +11,7 @@ import water.nbhm.NonBlockingHashMap;
 import water.parser.Categorical;
 import water.parser.BufferedString;
 import water.util.ArrayUtils;
+import water.util.Log;
 
 import java.util.Arrays;
 
@@ -288,12 +289,15 @@ final class RollupStats extends Iced {
     if( vec.isString() ) computeHisto = false; // No histogram for string columns
     final Key rskey = vec.rollupStatsKey();
     RollupStats rs = getOrNull(vec,rskey);
-    if(rs == null || (computeHisto && !rs.hasHisto()))
-      fs.add(new RPC(rskey.home_node(),new ComputeRollupsTask(vec,computeHisto)).addCompleter(new H2OCallback() {
-        @Override public void callback(H2OCountedCompleter h2OCountedCompleter) {
+    if(rs == null || (computeHisto && !rs.hasHisto())) {
+      Log.debug("Will calculate RollupStats, key = ", rskey);
+      fs.add(new RPC(rskey.home_node(), new ComputeRollupsTask(vec, computeHisto)).addCompleter(new H2OCallback() {
+        @Override
+        public void callback(H2OCountedCompleter h2OCountedCompleter) {
           DKV.get(rskey); // fetch new results via DKV to enable caching of the results.
         }
       }).call());
+    }
   }
 
   private static NonBlockingHashMap<Key,RPC> _pendingRollups = new NonBlockingHashMap<>();
@@ -401,6 +405,7 @@ final class RollupStats extends Iced {
     public void compute2() {
       assert _rsKey.home();
       final Vec vec = DKV.getGet(_vecKey);
+      Log.debug("Calculating RollupStats, key = ", _rsKey);
       while(true) {
         Value v = DKV.get(_rsKey);
         RollupStats rs = (v == null) ? null : v.<RollupStats>get();
