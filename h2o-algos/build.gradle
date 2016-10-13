@@ -31,7 +31,7 @@ task testSSLEncryption(type: Exec) {
 // level) to files - then scrape the files later for test results.
 test {
   dependsOn ":h2o-core:testJar"
-  dependsOn smalldataCheck, cpLibs, jar, testJar, testSingleNode, testMultiNode, testSSLEncryption
+  dependsOn smalldataCheck, cpLibs, jar, testJar
 
   // Defeat task 'test' by running no tests.
   exclude '**'

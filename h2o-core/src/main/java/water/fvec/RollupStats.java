@@ -27,6 +27,28 @@ import java.util.Arrays;
  *  rollup.  Remote requests *always* forward to the Rollup Key's master.
  */
 final class RollupStats extends Iced {
+
+  @Override
+  public String toString() {
+    return "RollupStats{" +
+            "_tsk=" + _tsk +
+            ", _naCnt=" + _naCnt +
+            ", _mean=" + _mean +
+            ", _sigma=" + _sigma +
+            ", _rows=" + _rows +
+            ", _nzCnt=" + _nzCnt +
+            ", _size=" + _size +
+            ", _pinfs=" + _pinfs +
+            ", _ninfs=" + _ninfs +
+            ", _isInt=" + _isInt +
+            ", _mins=" + Arrays.toString(_mins) +
+            ", _maxs=" + Arrays.toString(_maxs) +
+            ", _checksum=" + _checksum +
+            ", _bins=" + Arrays.toString(_bins) +
+            ", _pctiles=" + Arrays.toString(_pctiles) +
+            '}';
+  }
+
   /** The count of missing elements.... or -2 if we have active writers and no
    *  rollup info can be computed (because the vector is being rapidly
    *  modified!), or -1 if rollups have not been computed since the last
