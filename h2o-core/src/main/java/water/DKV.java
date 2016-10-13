@@ -1,5 +1,7 @@
 package water;
 
+import water.util.Log;
+
 /** A Distributed Key/Value Store.
  *  <p>
  *  Functions to Get and Put Values into the K/V store by Key.
@@ -110,6 +112,10 @@ public abstract class DKV {
   static public Value DputIfMatch( Key key, Value val, Value old, Futures fs, boolean dontCache ) {
     // For debugging where keys are created from
 //    try { System.err.flush(); System.err.println(key); Thread.dumpStack(); System.err.flush(); } catch (Throwable t) {}
+
+    if ((val != null) && "".equals(TypeMap.className(val.type())) {
+      Log.err(new Exception("RollupStats - insert key " + key + ", value = " + val));
+    }
 
     // First: I must block repeated remote PUTs to the same Key until all prior
     // ones complete - the home node needs to see these PUTs in order.
