@@ -113,7 +113,7 @@ public abstract class DKV {
     // For debugging where keys are created from
 //    try { System.err.flush(); System.err.println(key); Thread.dumpStack(); System.err.flush(); } catch (Throwable t) {}
 
-    if ((val != null) && "".equals(TypeMap.className(val.type())) {
+    if ((val != null) && "".equals(TypeMap.className(val.type()))) {
       Log.err(new Exception("RollupStats - insert key " + key + ", value = " + val));
     }
 
