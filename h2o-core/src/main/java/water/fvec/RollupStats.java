@@ -274,9 +274,9 @@ final class RollupStats extends Iced {
   }
 
   private static class Roll extends MRTask<Roll> {
-    final Key _rskey;
+    //final Key _rskey;
     RollupStats _rs;
-    Roll( H2OCountedCompleter cmp, Key rskey ) { super(cmp); _rskey=rskey; }
+    Roll( H2OCountedCompleter cmp, Key rskey ) { super(cmp); }
     @Override public void map( Chunk c ) { _rs = new RollupStats(0).map(c); }
     @Override public void reduce( Roll roll ) { _rs.reduce(roll._rs); }
     @Override public void postGlobal() {
@@ -428,7 +428,9 @@ final class RollupStats extends Iced {
       assert _rsKey.home();
       final Vec vec = DKV.getGet(_vecKey);
       Log.info("Calculating RollupStats, key = ", _rsKey);
+      int round=0;
       while(true) {
+        Log.info("Round ", round++, ", key = ", _rsKey);
         Value v = DKV.get(_rsKey);
         RollupStats rs = (v == null) ? null : v.<RollupStats>get();
         // Fetched current rs from the DKV, rs can be:
