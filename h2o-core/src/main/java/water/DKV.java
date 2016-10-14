@@ -116,9 +116,9 @@ public abstract class DKV {
     // For debugging where keys are created from
 //    try { System.err.flush(); System.err.println(key); Thread.dumpStack(); System.err.flush(); } catch (Throwable t) {}
 
-    if ((val != null) && "".equals(TypeMap.className(val.type()))) {
-      Log.info("RollupStats - insert key " + key + ", value = " + val);
-    }
+//    if ((val != null) && "water.fvec.RollupStats".equals(TypeMap.className(val.type()))) {
+//      Log.info("RollupStats - insert key " + key + ", value = " + val);
+//    }
 
     // First: I must block repeated remote PUTs to the same Key until all prior
     // ones complete - the home node needs to see these PUTs in order.
